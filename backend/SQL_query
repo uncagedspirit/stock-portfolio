@@ -1,0 +1,165 @@
+-- Stock Portfolio Manager Database Schema
+
+-- Create database
+CREATE DATABASE stock_portfolio;
+USE stock_portfolio;
+
+-- Users table (single user for now, but scalable)
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    cash_balance DECIMAL(15, 2) DEFAULT 10000.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Stocks table (master data)
+CREATE TABLE stocks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    symbol VARCHAR(10) UNIQUE NOT NULL,
+    company_name VARCHAR(200) NOT NULL,
+    sector VARCHAR(100),
+    current_price DECIMAL(10, 2) NOT NULL,
+    previous_close DECIMAL(10, 2) NOT NULL,
+    market_cap BIGINT,
+    pe_ratio DECIMAL(8, 2),
+    dividend_yield DECIMAL(5, 2),
+    fifty_two_week_high DECIMAL(10, 2),
+    fifty_two_week_low DECIMAL(10, 2),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- User holdings/portfolio
+CREATE TABLE holdings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    stock_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 0,
+    average_price DECIMAL(10, 2) NOT NULL,
+    total_invested DECIMAL(15, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (stock_id) REFERENCES stocks(id),
+    UNIQUE KEY unique_user_stock (user_id, stock_id)
+);
+
+-- Watchlist
+CREATE TABLE watchlist (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    stock_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (stock_id) REFERENCES stocks(id),
+    UNIQUE KEY unique_user_stock_watch (user_id, stock_id)
+);
+
+-- Transaction history
+CREATE TABLE transactions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    stock_id INT NOT NULL,
+    transaction_type ENUM('BUY', 'SELL') NOT NULL,
+    quantity INT NOT NULL,
+    price_per_share DECIMAL(10, 2) NOT NULL,
+    total_amount DECIMAL(15, 2) NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (stock_id) REFERENCES stocks(id)
+);
+
+-- Stock price history for charts
+CREATE TABLE stock_prices (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    stock_id INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    volume BIGINT DEFAULT 0,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (stock_id) REFERENCES stocks(id),
+    INDEX idx_stock_date (stock_id, recorded_at)
+);
+
+-- News articles
+CREATE TABLE news (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    headline VARCHAR(500) NOT NULL,
+    summary TEXT,
+    source VARCHAR(100),
+    url VARCHAR(500),
+    published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    stock_symbols VARCHAR(200), -- comma-separated symbols
+    sentiment ENUM('positive', 'negative', 'neutral') DEFAULT 'neutral'
+);
+
+-- Insert sample data
+
+-- Insert default user
+INSERT INTO users (name, email, cash_balance) VALUES 
+('Demo User', 'demo@example.com', 50000.00);
+
+-- Insert sample stocks
+INSERT INTO stocks (symbol, company_name, sector, current_price, previous_close, market_cap, pe_ratio, dividend_yield, fifty_two_week_high, fifty_two_week_low) VALUES
+('AAPL', 'Apple Inc.', 'Technology', 175.50, 174.20, 2800000000000, 28.5, 0.52, 198.23, 124.17),
+('GOOGL', 'Alphabet Inc.', 'Technology', 142.30, 140.85, 1800000000000, 24.2, 0.00, 151.55, 83.34),
+('MSFT', 'Microsoft Corporation', 'Technology', 415.20, 412.80, 3100000000000, 32.1, 0.68, 468.35, 245.61),
+('AMZN', 'Amazon.com Inc.', 'Consumer Discretionary', 145.80, 144.20, 1500000000000, 45.8, 0.00, 188.11, 81.43),
+('TSLA', 'Tesla Inc.', 'Automotive', 248.50, 245.60, 790000000000, 65.2, 0.00, 409.97, 101.81),
+('NVDA', 'NVIDIA Corporation', 'Technology', 875.20, 867.40, 2200000000000, 58.7, 0.03, 974.00, 108.13),
+('META', 'Meta Platforms Inc.', 'Technology', 325.80, 322.40, 820000000000, 22.4, 0.00, 384.33, 88.09),
+('NFLX', 'Netflix Inc.', 'Communication Services', 445.60, 442.10, 192000000000, 35.6, 0.00, 700.99, 162.71),
+('JPM', 'JPMorgan Chase & Co.', 'Financial Services', 185.40, 184.20, 545000000000, 12.8, 2.35, 205.29, 135.19),
+('JNJ', 'Johnson & Johnson', 'Healthcare', 162.30, 161.80, 425000000000, 15.4, 2.95, 185.94, 143.13);
+
+-- Insert sample holdings
+INSERT INTO holdings (user_id, stock_id, quantity, average_price, total_invested) VALUES
+(1, 1, 10, 170.00, 1700.00), -- AAPL
+(1, 2, 5, 135.00, 675.00),   -- GOOGL
+(1, 3, 3, 400.00, 1200.00),  -- MSFT
+(1, 6, 2, 820.00, 1640.00);  -- NVDA
+
+-- Insert sample watchlist
+INSERT INTO watchlist (user_id, stock_id) VALUES
+(1, 4), -- AMZN
+(1, 5), -- TSLA
+(1, 7), -- META
+(1, 8); -- NFLX
+
+-- Insert sample transactions
+INSERT INTO transactions (user_id, stock_id, transaction_type, quantity, price_per_share, total_amount, transaction_date) VALUES
+(1, 1, 'BUY', 5, 165.00, 825.00, DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(1, 1, 'BUY', 5, 175.00, 875.00, DATE_SUB(NOW(), INTERVAL 15 DAY)),
+(1, 2, 'BUY', 5, 135.00, 675.00, DATE_SUB(NOW(), INTERVAL 25 DAY)),
+(1, 3, 'BUY', 3, 400.00, 1200.00, DATE_SUB(NOW(), INTERVAL 20 DAY)),
+(1, 6, 'BUY', 2, 820.00, 1640.00, DATE_SUB(NOW(), INTERVAL 10 DAY));
+
+-- Insert sample price history for charts (last 30 days)
+INSERT INTO stock_prices (stock_id, price, volume, recorded_at) VALUES
+-- AAPL price history
+(1, 165.20, 45000000, DATE_SUB(NOW(), INTERVAL 30 DAY)),
+(1, 167.80, 42000000, DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(1, 169.50, 38000000, DATE_SUB(NOW(), INTERVAL 28 DAY)),
+(1, 171.30, 41000000, DATE_SUB(NOW(), INTERVAL 27 DAY)),
+(1, 168.90, 47000000, DATE_SUB(NOW(), INTERVAL 26 DAY)),
+(1, 170.40, 44000000, DATE_SUB(NOW(), INTERVAL 25 DAY)),
+(1, 172.10, 39000000, DATE_SUB(NOW(), INTERVAL 24 DAY)),
+(1, 174.60, 43000000, DATE_SUB(NOW(), INTERVAL 23 DAY)),
+(1, 173.20, 41000000, DATE_SUB(NOW(), INTERVAL 22 DAY)),
+(1, 175.80, 46000000, DATE_SUB(NOW(), INTERVAL 21 DAY)),
+(1, 177.30, 48000000, DATE_SUB(NOW(), INTERVAL 20 DAY)),
+(1, 176.10, 42000000, DATE_SUB(NOW(), INTERVAL 19 DAY)),
+(1, 178.50, 45000000, DATE_SUB(NOW(), INTERVAL 18 DAY)),
+(1, 176.80, 41000000, DATE_SUB(NOW(), INTERVAL 17 DAY)),
+(1, 175.20, 43000000, DATE_SUB(NOW(), INTERVAL 16 DAY)),
+(1, 174.20, 44000000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(1, 175.50, 45000000, NOW());
+
+-- Insert sample news
+INSERT INTO news (headline, summary, source, url, published_at, stock_symbols, sentiment) VALUES
+('Apple Reports Strong Q4 Earnings', 'Apple Inc. reported better than expected quarterly earnings with strong iPhone sales and services revenue growth.', 'Financial Times', 'https://example.com/news/1', DATE_SUB(NOW(), INTERVAL 2 HOUR), 'AAPL', 'positive'),
+('Tech Stocks Rally on AI Optimism', 'Major technology stocks including Google, Microsoft, and NVIDIA surge on renewed artificial intelligence investment optimism.', 'Reuters', 'https://example.com/news/2', DATE_SUB(NOW(), INTERVAL 4 HOUR), 'GOOGL,MSFT,NVDA', 'positive'),
+('Federal Reserve Hints at Rate Cuts', 'Federal Reserve officials suggest potential interest rate reductions in upcoming meetings, boosting market sentiment.', 'Wall Street Journal', 'https://example.com/news/3', DATE_SUB(NOW(), INTERVAL 6 HOUR), '', 'positive'),
+('Tesla Faces Production Challenges', 'Tesla reports lower than expected vehicle deliveries citing supply chain disruptions at key manufacturing facilities.', 'Bloomberg', 'https://example.com/news/4', DATE_SUB(NOW(), INTERVAL 8 HOUR), 'TSLA', 'negative'),
+('Amazon Expands Cloud Services', 'Amazon Web Services announces new AI-powered cloud computing solutions, strengthening its market position.', 'TechCrunch', 'https://example.com/news/5', DATE_SUB(NOW(), INTERVAL 12 HOUR), 'AMZN', 'positive'),
+('Market Volatility Expected This Week', 'Analysts predict increased market volatility due to upcoming economic data releases and corporate earnings reports.', 'MarketWatch', 'https://example.com/news/6', DATE_SUB(NOW(), INTERVAL 1 DAY), '', 'neutral');

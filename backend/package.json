@@ -1,0 +1,27 @@
+{
+  "name": "stock-portfolio-backend",
+  "version": "1.0.0",
+  "description": "Stock Portfolio Manager Backend API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mysql2": "^3.14.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "stocks",
+    "portfolio",
+    "finance",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

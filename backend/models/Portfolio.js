@@ -158,16 +158,17 @@ class Portfolio {
     }
 
     static async getTransactionHistory(userId = 1, limit = 50) {
+        const safeLimit = Number(limit); // sanitize limit
         const [rows] = await db.execute(`
             SELECT t.*, s.symbol, s.company_name 
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.id
             WHERE t.user_id = ?
             ORDER BY t.transaction_date DESC
-            LIMIT ?
-        `, [userId, limit]);
+            LIMIT ${safeLimit}
+        `, [userId]);
         return rows;
-    }
+    }    
 }
 
 module.exports = Portfolio;

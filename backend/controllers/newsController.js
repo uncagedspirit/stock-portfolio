@@ -23,6 +23,7 @@ const newsController = {
             res.status(500).json({ success: false, message: 'Failed to fetch stock news' });
         }
     }
+    
 };
 
 module.exports = newsController;

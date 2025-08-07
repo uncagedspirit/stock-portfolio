@@ -4,57 +4,102 @@ import { TrendingUp, TrendingDown, DollarSign, Eye, EyeOff, Plus, Minus, Refresh
 
 const API_BASE = 'http://localhost:5000/api';
 
-// Mock API functions for demonstration
-const mockAPI = {
-  portfolio: {
-    totalInvested: "5215.00",
-    currentValue: "6185.20",
-    totalPnL: "970.20",
-    totalPnLPercent: "18.61",
-    cashBalance: "44785.00",
-    totalPortfolioValue: "50970.20",
-    holdings: [
-      { id: 1, symbol: 'AAPL', company_name: 'Apple Inc.', quantity: 10, current_price: 175.50, current_value: 1755.00, total_invested: 1700.00, unrealized_pnl: 55.00, pnl_percent: 3.24 },
-      { id: 2, symbol: 'GOOGL', company_name: 'Alphabet Inc.', quantity: 5, current_price: 142.30, current_value: 711.50, total_invested: 675.00, unrealized_pnl: 36.50, pnl_percent: 5.41 },
-      { id: 3, symbol: 'MSFT', company_name: 'Microsoft Corporation', quantity: 3, current_price: 415.20, current_value: 1245.60, total_invested: 1200.00, unrealized_pnl: 45.60, pnl_percent: 3.80 },
-      { id: 6, symbol: 'NVDA', company_name: 'NVIDIA Corporation', quantity: 2, current_price: 875.20, current_value: 1750.40, total_invested: 1640.00, unrealized_pnl: 110.40, pnl_percent: 6.73 }
-    ]
+// API service functions
+const apiService = {
+  // Portfolio endpoints
+  getPortfolio: async () => {
+    const response = await fetch(`${API_BASE}/portfolio`);
+    return response.json();
   },
-  stocks: [
-    { id: 1, symbol: 'AAPL', company_name: 'Apple Inc.', current_price: 175.50, change_percent: 0.74, change_amount: 1.30 },
-    { id: 2, symbol: 'GOOGL', company_name: 'Alphabet Inc.', current_price: 142.30, change_percent: 1.03, change_amount: 1.45 },
-    { id: 3, symbol: 'MSFT', company_name: 'Microsoft Corporation', current_price: 415.20, change_percent: 0.58, change_amount: 2.40 },
-    { id: 4, symbol: 'AMZN', company_name: 'Amazon.com Inc.', current_price: 145.80, change_percent: 1.11, change_amount: 1.60 },
-    { id: 5, symbol: 'TSLA', company_name: 'Tesla Inc.', current_price: 248.50, change_percent: 1.18, change_amount: 2.90 },
-    { id: 6, symbol: 'NVDA', company_name: 'NVIDIA Corporation', current_price: 875.20, change_percent: 0.90, change_amount: 7.80 },
-    { id: 7, symbol: 'META', company_name: 'Meta Platforms Inc.', current_price: 325.80, change_percent: 1.05, change_amount: 3.40 },
-    { id: 8, symbol: 'NFLX', company_name: 'Netflix Inc.', current_price: 445.60, change_percent: 0.79, change_amount: 3.50 }
-  ],
-  watchlist: [
-    { id: 4, symbol: 'AMZN', company_name: 'Amazon.com Inc.', current_price: 145.80, change_percent: 1.11, change_amount: 1.60 },
-    { id: 5, symbol: 'TSLA', company_name: 'Tesla Inc.', current_price: 248.50, change_percent: 1.18, change_amount: 2.90 },
-    { id: 7, symbol: 'META', company_name: 'Meta Platforms Inc.', current_price: 325.80, change_percent: 1.05, change_amount: 3.40 },
-    { id: 8, symbol: 'NFLX', company_name: 'Netflix Inc.', current_price: 445.60, change_percent: 0.79, change_amount: 3.50 }
-  ],
-  news: [
-    { id: 1, headline: 'Apple Reports Strong Q4 Earnings', summary: 'Apple Inc. reported better than expected quarterly earnings with strong iPhone sales.', source: 'Financial Times', sentiment: 'positive', published_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-    { id: 2, headline: 'Tech Stocks Rally on AI Optimism', summary: 'Major technology stocks surge on renewed AI investment optimism.', source: 'Reuters', sentiment: 'positive', published_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
-    { id: 3, headline: 'Federal Reserve Hints at Rate Cuts', summary: 'Fed officials suggest potential interest rate reductions in upcoming meetings.', source: 'Wall Street Journal', sentiment: 'positive', published_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() },
-    { id: 4, headline: 'Tesla Faces Production Challenges', summary: 'Tesla reports lower than expected vehicle deliveries citing supply chain disruptions.', source: 'Bloomberg', sentiment: 'negative', published_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString() }
-  ],
-  priceHistory: [
-    { date: '2025-01-07', price: 165.20 }, { date: '2025-01-08', price: 167.80 }, { date: '2025-01-09', price: 169.50 },
-    { date: '2025-01-10', price: 171.30 }, { date: '2025-01-11', price: 168.90 }, { date: '2025-01-12', price: 170.40 },
-    { date: '2025-01-13', price: 172.10 }, { date: '2025-01-14', price: 174.60 }, { date: '2025-01-15', price: 173.20 },
-    { date: '2025-01-16', price: 175.80 }, { date: '2025-01-17', price: 177.30 }, { date: '2025-01-18', price: 176.10 },
-    { date: '2025-01-19', price: 178.50 }, { date: '2025-01-20', price: 176.80 }, { date: '2025-01-21', price: 175.20 },
-    { date: '2025-02-04', price: 174.20 }, { date: '2025-02-05', price: 175.50 }
-  ]
+  
+  getHoldings: async () => {
+    const response = await fetch(`${API_BASE}/portfolio/holdings`);
+    return response.json();
+  },
+
+  getTransactionHistory: async () => {
+    const response = await fetch(`${API_BASE}/portfolio/transactions`);
+    return response.json();
+  },
+
+  buyStock: async (stockId, quantity) => {
+    const response = await fetch(`${API_BASE}/portfolio/buy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stockId, quantity }),
+    });
+    return response.json();
+  },
+
+  sellStock: async (stockId, quantity) => {
+    const response = await fetch(`${API_BASE}/portfolio/sell`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stockId, quantity }),
+    });
+    return response.json();
+  },
+
+  // Stock endpoints
+  getAllStocks: async () => {
+    const response = await fetch(`${API_BASE}/stocks`);
+    return response.json();
+  },
+
+  getStockById: async (id) => {
+    const response = await fetch(`${API_BASE}/stocks/${id}`);
+    return response.json();
+  },
+
+  getStockPriceHistory: async (id) => {
+    const response = await fetch(`${API_BASE}/stocks/${id}/history`);
+    return response.json();
+  },
+
+  // Watchlist endpoints
+  getWatchlist: async () => {
+    const response = await fetch(`${API_BASE}/watchlist`);
+    return response.json();
+  },
+
+  addToWatchlist: async (stockId) => {
+    const response = await fetch(`${API_BASE}/watchlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stockId }),
+    });
+    return response.json();
+  },
+
+  removeFromWatchlist: async (stockId) => {
+    const response = await fetch(`${API_BASE}/watchlist/${stockId}`, {
+      method: 'DELETE',
+    });
+    return response.json();
+  },
+
+  // News endpoints
+  getLatestNews: async () => {
+    const response = await fetch(`${API_BASE}/news`);
+    return response.json();
+  },
+
+  getNewsByStock: async (symbol) => {
+    const response = await fetch(`${API_BASE}/news/stock/${symbol}`);
+    return response.json();
+  }
 };
 
 const StockPortfolioManager = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [portfolio, setPortfolio] = useState(null);
+  const [holdings, setHoldings] = useState([]);
   const [stocks, setStocks] = useState([]);
   const [watchlist, setWatchlist] = useState([]);
   const [news, setNews] = useState([]);
@@ -63,18 +108,54 @@ const StockPortfolioManager = () => {
   const [tradeModal, setTradeModal] = useState({ open: false, type: '', stock: null });
   const [tradeQuantity, setTradeQuantity] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Load initial data
   useEffect(() => {
-    // Simulate API calls with mock data
-    setTimeout(() => {
-      setPortfolio(mockAPI.portfolio);
-      setStocks(mockAPI.stocks);
-      setWatchlist(mockAPI.watchlist);
-      setNews(mockAPI.news);
-      setPriceHistory(mockAPI.priceHistory);
-      setLoading(false);
-    }, 1000);
+    loadInitialData();
   }, []);
+
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [
+        portfolioData,
+        holdingsData,
+        stocksData,
+        watchlistData,
+        newsData
+      ] = await Promise.all([
+        apiService.getPortfolio().catch(err => ({ error: err.message })),
+        apiService.getHoldings().catch(err => ({ error: err.message })),
+        apiService.getAllStocks().catch(err => ({ error: err.message })),
+        apiService.getWatchlist().catch(err => ({ error: err.message })),
+        apiService.getLatestNews().catch(err => ({ error: err.message }))
+      ]);
+
+      if (!portfolioData.error) setPortfolio(portfolioData);
+      if (!holdingsData.error) setHoldings(holdingsData);
+      if (!stocksData.error) setStocks(stocksData);
+      if (!watchlistData.error) setWatchlist(watchlistData);
+      if (!newsData.error) setNews(newsData);
+
+      // Load price history for first stock if available
+      if (stocksData && stocksData.length > 0 && !stocksData.error) {
+        const historyData = await apiService.getStockPriceHistory(stocksData[0].id).catch(err => ({ error: err.message }));
+        if (!historyData.error) setPriceHistory(historyData);
+      }
+    } catch (err) {
+      setError('Failed to load data. Please check your connection.');
+      console.error('Error loading initial data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshData = async () => {
+    await loadInitialData();
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -95,25 +176,75 @@ const StockPortfolioManager = () => {
     setTradeModal({ open: true, type, stock });
   };
 
-  const executeTrade = () => {
+  const executeTrade = async () => {
     if (!tradeQuantity || !tradeModal.stock) return;
     
-    // Mock trade execution
-    const cost = parseFloat(tradeQuantity) * tradeModal.stock.current_price;
-    alert(`${tradeModal.type === 'buy' ? 'Bought' : 'Sold'} ${tradeQuantity} shares of ${tradeModal.stock.symbol} for ${formatCurrency(cost)}`);
-    
-    setTradeModal({ open: false, type: '', stock: null });
-    setTradeQuantity('');
-  };
+    try {
+      const quantity = parseInt(tradeQuantity);
+      let result;
+      
+      if (tradeModal.type === 'buy') {
+        result = await apiService.buyStock(tradeModal.stock.id, quantity);
+      } else {
+        result = await apiService.sellStock(tradeModal.stock.id, quantity);
+      }
 
-  const addToWatchlist = (stock) => {
-    if (!watchlist.find(w => w.id === stock.id)) {
-      setWatchlist([...watchlist, stock]);
+      if (result.success || result.message) {
+        alert(`Successfully ${tradeModal.type === 'buy' ? 'bought' : 'sold'} ${quantity} shares of ${tradeModal.stock.symbol}`);
+        // Refresh portfolio and holdings data
+        const [portfolioData, holdingsData] = await Promise.all([
+          apiService.getPortfolio(),
+          apiService.getHoldings()
+        ]);
+        setPortfolio(portfolioData);
+        setHoldings(holdingsData);
+      } else {
+        throw new Error(result.error || 'Trade failed');
+      }
+    } catch (error) {
+      alert(`Trade failed: ${error.message}`);
+    } finally {
+      setTradeModal({ open: false, type: '', stock: null });
+      setTradeQuantity('');
     }
   };
 
-  const removeFromWatchlist = (stockId) => {
-    setWatchlist(watchlist.filter(w => w.id !== stockId));
+  const addToWatchlist = async (stock) => {
+    try {
+      const result = await apiService.addToWatchlist(stock.id);
+      if (result.success || result.message) {
+        const updatedWatchlist = await apiService.getWatchlist();
+        setWatchlist(updatedWatchlist);
+      } else {
+        throw new Error(result.error || 'Failed to add to watchlist');
+      }
+    } catch (error) {
+      alert(`Failed to add to watchlist: ${error.message}`);
+    }
+  };
+
+  const removeFromWatchlist = async (stockId) => {
+    try {
+      const result = await apiService.removeFromWatchlist(stockId);
+      if (result.success || result.message) {
+        const updatedWatchlist = await apiService.getWatchlist();
+        setWatchlist(updatedWatchlist);
+      } else {
+        throw new Error(result.error || 'Failed to remove from watchlist');
+      }
+    } catch (error) {
+      alert(`Failed to remove from watchlist: ${error.message}`);
+    }
+  };
+
+  const loadStockPriceHistory = async (stockId) => {
+    try {
+      const historyData = await apiService.getStockPriceHistory(stockId);
+      setPriceHistory(historyData);
+      setSelectedStock(stockId);
+    } catch (error) {
+      console.error('Failed to load price history:', error);
+    }
   };
 
   const chartColors = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#06B6D4', '#84CC16', '#F97316'];
@@ -124,6 +255,22 @@ const StockPortfolioManager = () => {
         <div className="flex items-center space-x-2">
           <RefreshCw className="h-6 w-6 animate-spin text-blue-600" />
           <span className="text-lg">Loading portfolio...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">{error}</div>
+          <button
+            onClick={loadInitialData}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -141,9 +288,12 @@ const StockPortfolioManager = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
-                Cash: <span className="font-semibold text-gray-900">{formatCurrency(portfolio?.cashBalance)}</span>
+                Cash: <span className="font-semibold text-gray-900">{formatCurrency(portfolio?.cashBalance || 0)}</span>
               </div>
-              <RefreshCw className="h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+              <RefreshCw 
+                className="h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600" 
+                onClick={refreshData}
+              />
             </div>
           </div>
         </div>
@@ -189,7 +339,7 @@ const StockPortfolioManager = () => {
                   <DollarSign className="h-8 w-8 text-blue-600" />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Total Value</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.totalPortfolioValue)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.totalPortfolioValue || 0)}</p>
                   </div>
                 </div>
               </div>
@@ -199,21 +349,21 @@ const StockPortfolioManager = () => {
                   <TrendingUp className="h-8 w-8 text-green-600" />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Current Value</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.currentValue)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.currentValue || 0)}</p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
-                  <TrendingUp className={`h-8 w-8 ${portfolio?.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+                  <TrendingUp className={`h-8 w-8 ${(portfolio?.totalPnL || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`} />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">P&L</p>
-                    <p className={`text-2xl font-bold ${getChangeColor(portfolio?.totalPnL)}`}>
-                      {formatCurrency(portfolio?.totalPnL)}
+                    <p className={`text-2xl font-bold ${getChangeColor(portfolio?.totalPnL || 0)}`}>
+                      {formatCurrency(portfolio?.totalPnL || 0)}
                     </p>
-                    <p className={`text-sm ${getChangeColor(portfolio?.totalPnLPercent)}`}>
-                      {formatPercent(portfolio?.totalPnLPercent)}
+                    <p className={`text-sm ${getChangeColor(portfolio?.totalPnLPercent || 0)}`}>
+                      {formatPercent(portfolio?.totalPnLPercent || 0)}
                     </p>
                   </div>
                 </div>
@@ -224,7 +374,7 @@ const StockPortfolioManager = () => {
                   <Wallet className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Cash Balance</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.cashBalance)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio?.cashBalance || 0)}</p>
                   </div>
                 </div>
               </div>
@@ -235,59 +385,86 @@ const StockPortfolioManager = () => {
               {/* Portfolio Allocation */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Allocation</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={portfolio?.holdings.map((holding, index) => ({
-                        name: holding.symbol,
-                        value: parseFloat(holding.current_value),
-                        color: chartColors[index % chartColors.length]
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {portfolio?.holdings.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {holdings && holdings.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={holdings.map((holding, index) => ({
+                          name: holding.symbol,
+                          value: parseFloat(holding.current_value || holding.currentValue || 0),
+                          color: chartColors[index % chartColors.length]
+                        }))}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {holdings.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-300 text-gray-500">
+                    No holdings data available
+                  </div>
+                )}
               </div>
 
               {/* Price History Chart */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">AAPL Price History</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={priceHistory}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                    <Line type="monotone" dataKey="price" stroke="#2563EB" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Price History</h3>
+                  <select
+                    onChange={(e) => loadStockPriceHistory(e.target.value)}
+                    className="text-sm border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="">Select Stock</option>
+                    {stocks.map((stock) => (
+                      <option key={stock.id} value={stock.id}>
+                        {stock.symbol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {priceHistory && priceHistory.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={priceHistory}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => formatCurrency(value)} />
+                      <Line type="monotone" dataKey="price" stroke="#2563EB" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-300 text-gray-500">
+                    Select a stock to view price history
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Holdings Performance */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Holdings Performance</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={portfolio?.holdings}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="symbol" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatPercent(value)} />
-                  <Bar dataKey="pnl_percent" fill="#10B981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {holdings && holdings.length > 0 && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Holdings Performance</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={holdings}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="symbol" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => formatPercent(value)} />
+                    <Bar dataKey="pnl_percent" fill="#10B981" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         )}
 
@@ -311,24 +488,24 @@ const StockPortfolioManager = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {portfolio?.holdings.map((holding) => (
+                  {holdings?.map((holding) => (
                     <tr key={holding.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">{holding.symbol}</div>
-                          <div className="text-sm text-gray-500">{holding.company_name}</div>
+                          <div className="text-sm text-gray-500">{holding.company_name || holding.companyName}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{holding.quantity}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.average_price)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.current_price)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.current_value)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.average_price || holding.averagePrice || 0)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.current_price || holding.currentPrice || 0)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(holding.current_value || holding.currentValue || 0)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm font-medium ${getChangeColor(holding.unrealized_pnl)}`}>
-                          {formatCurrency(holding.unrealized_pnl)}
+                        <div className={`text-sm font-medium ${getChangeColor(holding.unrealized_pnl || holding.unrealizedPnl || 0)}`}>
+                          {formatCurrency(holding.unrealized_pnl || holding.unrealizedPnl || 0)}
                         </div>
-                        <div className={`text-sm ${getChangeColor(holding.pnl_percent)}`}>
-                          {formatPercent(holding.pnl_percent)}
+                        <div className={`text-sm ${getChangeColor(holding.pnl_percent || holding.pnlPercent || 0)}`}>
+                          {formatPercent(holding.pnl_percent || holding.pnlPercent || 0)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -349,6 +526,11 @@ const StockPortfolioManager = () => {
                   ))}
                 </tbody>
               </table>
+              {(!holdings || holdings.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  No holdings found. Start by buying some stocks!
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -375,13 +557,13 @@ const StockPortfolioManager = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">{stock.symbol}</div>
-                          <div className="text-sm text-gray-500">{stock.company_name}</div>
+                          <div className="text-sm text-gray-500">{stock.company_name || stock.companyName}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(stock.current_price)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(stock.current_price || stock.currentPrice || 0)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${getChangeColor(stock.change_percent)}`}>
-                          {formatCurrency(stock.change_amount)} ({formatPercent(stock.change_percent)})
+                        <div className={`text-sm ${getChangeColor(stock.change_percent || stock.changePercent || 0)}`}>
+                          {formatCurrency(stock.change_amount || stock.changeAmount || 0)} ({formatPercent(stock.change_percent || stock.changePercent || 0)})
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -428,13 +610,13 @@ const StockPortfolioManager = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">{stock.symbol}</div>
-                          <div className="text-sm text-gray-500">{stock.company_name}</div>
+                          <div className="text-sm text-gray-500">{stock.company_name || stock.companyName}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(stock.current_price)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(stock.current_price || stock.currentPrice || 0)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${getChangeColor(stock.change_percent)}`}>
-                          {formatCurrency(stock.change_amount)} ({formatPercent(stock.change_percent)})
+                        <div className={`text-sm ${getChangeColor(stock.change_percent || stock.changePercent || 0)}`}>
+                          {formatCurrency(stock.change_amount || stock.changeAmount || 0)} ({formatPercent(stock.change_percent || stock.changePercent || 0)})
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -455,6 +637,11 @@ const StockPortfolioManager = () => {
                   ))}
                 </tbody>
               </table>
+              {(!watchlist || watchlist.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  Your watchlist is empty. Add some stocks to track their performance!
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -473,7 +660,7 @@ const StockPortfolioManager = () => {
                         <p className="text-sm text-gray-600 mb-2">{article.summary}</p>
                         <div className="flex items-center text-xs text-gray-500 space-x-4">
                           <span>{article.source}</span>
-                          <span>{new Date(article.published_at).toLocaleString()}</span>
+                          <span>{new Date(article.published_at || article.publishedAt).toLocaleString()}</span>
                           <span className={`px-2 py-1 rounded-full ${
                             article.sentiment === 'positive' 
                               ? 'bg-green-100 text-green-800' 
@@ -498,12 +685,16 @@ const StockPortfolioManager = () => {
                           <TrendingDown className="h-4 w-4 text-red-600" />
                         ) : (
                           <Newspaper className="h-4 w-4 text-gray-600" />
-                        //    TODO: Add a neutral icon
                         )}
                       </div>
                     </div>
                   </div>
                 ))}
+                {(!news || news.length === 0) && (
+                  <div className="text-center py-8 text-gray-500">
+                    No news available at the moment.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -513,58 +704,79 @@ const StockPortfolioManager = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Gainers</h3>
                 <div className="space-y-3">
                   {stocks
-                    .filter(stock => stock.change_percent > 0)
-                    .sort((a, b) => b.change_percent - a.change_percent)
+                    .filter(stock => (stock.change_percent || stock.changePercent || 0) > 0)
+                    .sort((a, b) => (b.change_percent || b.changePercent || 0) - (a.change_percent || a.changePercent || 0))
                     .slice(0, 5)
                     .map(stock => (
                       <div key={stock.id} className="flex justify-between items-center">
                         <div>
                           <div className="font-medium text-gray-900">{stock.symbol}</div>
-                          <div className="text-sm text-gray-500">{formatCurrency(stock.current_price)}</div>
+                          <div className="text-sm text-gray-500">{formatCurrency(stock.current_price || stock.currentPrice || 0)}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-green-600 font-medium">
-                            +{formatPercent(stock.change_percent)}
+                            +{formatPercent(stock.change_percent || stock.changePercent || 0)}
                           </div>
                           <div className="text-sm text-green-600">
-                            +{formatCurrency(stock.change_amount)}
+                            +{formatCurrency(stock.change_amount || stock.changeAmount || 0)}
                           </div>
                         </div>
                       </div>
                     ))}
+                  {stocks.filter(stock => (stock.change_percent || stock.changePercent || 0) > 0).length === 0 && (
+                    <div className="text-gray-500 text-sm">No gainers today</div>
+                  )}
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Market Sentiment</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Positive News</span>
-                    <div className="flex items-center">
-                      <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{width: '65%'}}></div>
+                  {news.length > 0 ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Positive News</span>
+                        <div className="flex items-center">
+                          <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{
+                              width: `${(news.filter(n => n.sentiment === 'positive').length / news.length * 100)}%`
+                            }}></div>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {Math.round(news.filter(n => n.sentiment === 'positive').length / news.length * 100)}%
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">65%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Neutral News</span>
-                    <div className="flex items-center">
-                      <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
-                        <div className="bg-gray-500 h-2 rounded-full" style={{width: '20%'}}></div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Neutral News</span>
+                        <div className="flex items-center">
+                          <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                            <div className="bg-gray-500 h-2 rounded-full" style={{
+                              width: `${(news.filter(n => n.sentiment === 'neutral').length / news.length * 100)}%`
+                            }}></div>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {Math.round(news.filter(n => n.sentiment === 'neutral').length / news.length * 100)}%
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">20%</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Negative News</span>
-                    <div className="flex items-center">
-                      <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
-                        <div className="bg-red-500 h-2 rounded-full" style={{width: '15%'}}></div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Negative News</span>
+                        <div className="flex items-center">
+                          <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
+                            <div className="bg-red-500 h-2 rounded-full" style={{
+                              width: `${(news.filter(n => n.sentiment === 'negative').length / news.length * 100)}%`
+                            }}></div>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {Math.round(news.filter(n => n.sentiment === 'negative').length / news.length * 100)}%
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">15%</span>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <div className="text-gray-500 text-sm">No news data available for sentiment analysis</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -586,7 +798,7 @@ const StockPortfolioManager = () => {
                   Current Price
                 </label>
                 <div className="text-xl font-bold text-gray-900">
-                  {formatCurrency(tradeModal.stock?.current_price)}
+                  {formatCurrency(tradeModal.stock?.current_price || tradeModal.stock?.currentPrice || 0)}
                 </div>
               </div>
 
@@ -610,7 +822,7 @@ const StockPortfolioManager = () => {
                   <div className="flex justify-between text-sm">
                     <span>Estimated Total:</span>
                     <span className="font-semibold">
-                      {formatCurrency(parseFloat(tradeQuantity || 0) * (tradeModal.stock?.current_price || 0))}
+                      {formatCurrency(parseFloat(tradeQuantity || 0) * (tradeModal.stock?.current_price || tradeModal.stock?.currentPrice || 0))}
                     </span>
                   </div>
                 </div>

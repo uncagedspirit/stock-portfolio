@@ -1,12 +1,9 @@
-import React from 'react'
-import StockPortfolioManager from './StockPortfolioManager'
+// src/App.jsx
+import React from 'react';
+import StockPortfolioManager from './StockPortfolioManager';
 
 const App = () => {
-  return (
-    <div>
-      <StockPortfolioManager/>
-    </div>
-  )
-}
+  return <StockPortfolioManager />;
+};
 
-export default App
+export default App;

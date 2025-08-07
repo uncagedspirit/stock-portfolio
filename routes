@@ -1,0 +1,22 @@
+/ Routes
+app.use('/api/stocks', stockRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/watchlist', watchlistRoutes);
+app.use('/api/news', newsRoutes);
+
+router.get('/', newsController.getLatestNews);
+router.get('/stock/:symbol', newsController.getNewsByStock);
+
+router.get('/', portfolioController.getPortfolio);
+router.get('/holdings', portfolioController.getHoldings);
+router.get('/transactions', portfolioController.getTransactionHistory);
+router.post('/buy', portfolioController.buyStock);
+router.post('/sell', portfolioController.sellStock);
+
+router.get('/', stockController.getAllStocks);
+router.get('/:id', stockController.getStockById);
+router.get('/:id/history', stockController.getStockPriceHistory);
+
+router.get('/', watchlistController.getWatchlist);
+router.post('/', watchlistController.addToWatchlist);
+router.delete('/:stockId', watchlistController.removeFromWatchlist);
